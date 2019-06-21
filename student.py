@@ -11,7 +11,7 @@ class Student(person.Person):
 		self.id = id
 
 	def display(self):
-		print self
+		print(self)
 
 	def __str__(self):
 		return super(Student, self).__str__() + ", School: %s, ID: %ld" % (self.school, self.id)

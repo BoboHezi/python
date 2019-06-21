@@ -35,22 +35,22 @@ def listFiles(files):
 	return msg
 
 allfiles = getFiles(cwd)
-print allfiles
+print(allfiles)
 allfiles.sort(key=sortByTime)
-print '\n'
+print('\n')
 
-file = open('C:\\Users\\zhanbo.zhang\\Desktop\\msg.txt', "w")
+file = open('C:\\Users\\zhangzhanbo\\Desktop\\msg.txt', "w")
 file.write(listFiles(allfiles))
 file.close()
 
 per = Person('Eli Chang', 'male', 19)
-print per
+print(per)
 
 stu1 = Student('Leo Wei', 'male', 21, 'MIT', 20384740)
 stu2 = Student('Eli Chang', 'male', 19, 'MIT', 20384739)
 
 stu1.display()
-print stu2
+print(stu2)
 
 coord1 = Coordinate(8, 0)
-print coord1
+print(coord1)

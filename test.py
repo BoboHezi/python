@@ -7,7 +7,7 @@ import sys
 import Tkinter
 
 def clicked():
-	print 'clicked'
+	print('clicked')
 
 def calculat():
 	x = 50
@@ -19,7 +19,7 @@ def calculat():
 			value = ((x ** 2) + (y ** 2)) ** 0.5
 			diff = abs(value - 161.29)
 			if diff < 0.1:
-				print "%d * %d * %lf" % (x, y, value)
+				print("%d * %d * %lf" % (x, y, value))
 
 def createfile(name, size):
     with open(name, 'wb') as f:
