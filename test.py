@@ -4,7 +4,7 @@
 import io
 import os
 import sys
-import Tkinter
+import tkinter
 
 def clicked():
 	print('clicked')
@@ -26,15 +26,15 @@ def createfile(name, size):
             f.write(os.urandom(size))
 
 members = ['Eli Chang', 'Fei Wei', 'Morse Ma', 'Tsao yufeng', 'Gandalf Jiang', 'Hytt Hu']
-window = Tkinter.Tk()
+window = tkinter.Tk()
 
-listbox = Tkinter.Listbox(window)
+listbox = tkinter.Listbox(window)
 for item in members:
 	listbox.insert(0, item)
 
 listbox.pack()
 
-btn = Tkinter.Button(window, text = 'click me', command = clicked)
+btn = tkinter.Button(window, text = 'click me', command = clicked)
 btn.pack()
 
 window.mainloop()
