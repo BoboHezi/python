@@ -3,6 +3,7 @@ import time
 from student import Student
 from person import Person
 from eli.py.coord import Coordinate
+from sort.Sort import Sort
 
 cwd = os.getcwd();
 
@@ -54,3 +55,8 @@ print(stu2)
 
 coord1 = Coordinate(8, 0)
 print(coord1)
+
+origin = [5,3,0,6,-3,1,2]
+print('origin: ', origin)
+sorted = Sort().abacus_sort(origin)
+print('sorted: ', sorted)
