@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <remote  name="origin"
+           fetch="../.."
+           review="http://10.20.40.21:8081/" />
+  <default revision="freeme-9.1.0_prod"
+           remote="origin"
+           sync-c="true"
+           sync-j="4" />
+
+  <include name="manifests/android-28/ALPS-P0-MP1-6762/_common.xml"/>
+
+  <!-- product.FreemeOS -->
+  <project path="device/droi" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/device_droi"/>
+  <project path="vendor/freeme" name="Freeme/platforms/common/vendor/freeme">
+    <linkfile src="build/tools/build" dest="mk" />
+    <linkfile src="build/tools/build" dest="publish" />
+    <linkfile src="build/tools/build" dest="stepup" />
+    <linkfile src="build/tools/build" dest="otadiff" />
+  </project>
+  <project path="vendor/freeme/packages/apps/FreemeSystemUI" name="Freeme/platforms/common/apps/FreemeSystemUI" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeRecents" name="Freeme/platforms/common/apps/FreemeRecents" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeMms" name="Freeme/platforms/common/apps/FreemeMms" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeSettings" name="Freeme/platforms/common/apps/FreemeSettings" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeDeskClock" name="Freeme/platforms/common/apps/FreemeDeskClock" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeHongbaoAssistant" name="Freeme/platforms/common/apps/FreemeHongbaoAssistant" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeOneHand" name="Freeme/platforms/common/apps/FreemeOneHand" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeSoundRecorder" name="Freeme/platforms/common/apps/FreemeSoundRecorder" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeFileManager" name="Freeme/platforms/common/apps/FreemeFileManager" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeMusic" name="Freeme/platforms/common/apps/FreemeMusic" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeVideo" name="Freeme/platforms/common/apps/FreemeVideo" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeSuperPowerSaver" name="Freeme/platforms/common/apps/FreemeSuperPowerSaver" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeAppLock" name="Freeme/platforms/common/apps/FreemeAppLock" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeSchedulePowerOnOff" name="Freeme/platforms/common/apps/FreemeSchedulePowerOnOff" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/apps/FreemeGameMode" name="Freeme/platforms/common/apps/FreemeGameMode" revision="freeme-9.1.0_prod-6762"/>
+  <project path="vendor/freeme/packages/lockscreen/FreemeLockscreenPicker" name="Freeme/platforms/common/lockscreen/FreemeLockscreenPicker" revision="freeme-9.1.0_prod-6762"/>
+  <!-- -->
+  <project path="vendor/freeme/external/soul" name="Freeme/platforms/common/core/soul" revision="PUB/main"/>
+  <project path="vendor/freeme/frameworks/base/services-export/freeme-services" name="Freeme/platforms/common/core/freeme-services" revision="REL/main"/>
+  <project path="vendor/freeme/packages/apps/FreemeOTA" name="Freeme/platforms/common/apps/FreemeOTA" revision="REL/develop-28"/>
+  <project path="vendor/freeme/packages/apps/FreemeCamera2" name="Freeme/platforms/common/apps/FreemeCamera2" revision="REL/prod"/>
+  <project path="vendor/freeme/packages/apps/FreemeCalculator" name="Freeme/platforms/common/apps/FreemeCalculator" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeSuperShot" name="Freeme/platforms/common/apps/FreemeSuperShot" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeYellowPageLite" name="Freeme/platforms/common/apps/FreemeYellowPageLite" revision="REL/main"/>
+  <project path="vendor/freeme/packages/apps/FreemeVAssistant" name="Freeme/platforms/common/apps/FreemeVAssistant" revision="REL/duer"/>
+  <project path="vendor/freeme/packages/apps/FreemeGallery" name="Freeme/platforms/common/apps/FreemeGallery" revision="p-release-prod"/>
+  <project path="vendor/freeme/packages/apps/FreemeCompass" name="Freeme/platforms/common/apps/FreemeCompass" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeManager" name="Freeme/platforms/common/apps/FreemeManager" revision="REL/main"/>
+  <project path="vendor/freeme/packages/apps/FreemeSetupWizard" name="Freeme/platforms/common/apps/FreemeSetupWizard" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeMultiApp" name="Freeme/platforms/common/apps/FreemeMultiApp" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeOneStep" name="Freeme/platforms/common/apps/FreemeOneStep" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeFooview" name="Freeme/platforms/common/apps/FreemeFooview" revision="release"/>
+  <project path="vendor/freeme/packages/apps/FreemeFaceService" name="Freeme/platforms/common/apps/FreemeFaceService" revision="REL/main"/>
+  <project path="vendor/freeme/packages/providers/FreemeConfigProvider" name="Freeme/platforms/common/apps/FreemeConfigProvider" revision="REL/main"/>
+  <project path="vendor/freeme/packages/lockscreen/FreemeLockscreenHaokan" name="Freeme/platforms/common/lockscreen/FreemeLockscreenHaokan" revision="release"/>
+  <!-- -->
+  <project path="vendor/google" name="Freeme/platforms/common/gms" revision="android-9.0"/>
+  <project path="vendor/freeme/packages/3rd-apps" name="Freeme/platforms/common/3rd-apps" revision="domestic"/>
+
+  <!-- FreemeScreenRecorder -->
+  <project path="vendor/freeme/packages/apps/FreemeScreenRecorder" name="Freeme/platforms/common/apps/FreemeScreenRecorder" revision="master"/>
+
+  <!-- product.Lite -->
+  <project path="vendor/freeme/packages/apps/freemelite" name="FreemeLite/products/FreemeLite/apps" revision="cn_standard_o"/>
+  <project path="vendor/freeme/packages/apps/security" name="FreemeLite/products/Security/apps" revision="pcb" />
+
+  <!-- project -->
+  <project path="droi/common" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/project/droi_common"/>
+  <project path="droi/q23" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/project/droi_q23"/>
+  <project path="droi/d79" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/project/droi_d79"/>
+</manifest>

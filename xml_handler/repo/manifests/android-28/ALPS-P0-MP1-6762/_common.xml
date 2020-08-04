@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <project path="build" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/build">
+    <copyfile src="core/root.mk" dest="Makefile" />
+    <linkfile src="soong/bootstrap.bash" dest="bootstrap.bash" />
+    <linkfile src="soong/root.bp" dest="Android.bp" />
+  </project>
+  <project path="art" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/art" />
+  <project path="bionic" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/bionic" />
+  <project path="bootable/recovery" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/bootable/recovery" />
+  <project path="cts" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/cts" />
+  <project path="dalvik" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/dalvik" />
+  <project path="developers" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/developers" />
+  <project path="development" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/development" />
+  <project path="external" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/external" />
+  <project path="frameworks" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/frameworks" />
+  <project path="libcore" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/libcore" />
+  <project path="libnativehelper" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/libnativehelper" />
+  <project path="packages" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/packages" />
+  <project path="pdk" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/pdk" />
+  <project path="platform_testing" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/platform_testing" />
+  <project path="prebuilts" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/prebuilts" />
+  <project path="sdk" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/sdk" />
+  <project path="system" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/system" />
+  <project path="toolchain" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/toolchain" />
+  <project path="tools" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/tools" />
+  <project path="kernel" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/kernel" />
+  <project path="kernel-4.9" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/kernel-4.9" />
+  <project path="kernel-4.4" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/kernel-4.4" />
+  <project path="kernel-3.18" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/kernel-3.18" />
+  <project path="hardware" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/hardware" />
+  <project path="device" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/device" />
+  <project path="device/mediateksample" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/device_mediateksample" />
+  <project path="device/mediatek" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/device_mediatek" />
+  <project path="vendor" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/vendor" />
+  <project path="ccu_tool" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/ccu_tool" />
+  <project path="test" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/test" />
+  <project path="compatibility" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/compatibility" />
+  <project path="trusty" name="Freeme/platforms/android-28/ALPS-MP-P0-6762/platform/trusty" />
+</manifest>
