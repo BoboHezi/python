@@ -68,11 +68,11 @@ if (__name__ == '__main__'):
 		action = sys.argv[1]
 
 	for cmd in read_cmds_from_file('../cp_v2.txt'):
-		match = re.search('\.[0-9]*:[0-9]*/', cmd)
+		match = re.search('[0-9]\/.*"', cmd)
 		if match != None:
-			start = cmd.find(match.group()) + len(match.group())
-			end = cmd.find('\"', start, len(cmd))
-			git_name = cmd[start : end]
+			start = 2
+			end = len(match.group()) - 1
+			git_name = match.group()[start : end]
 			if git_path.has_key(git_name):
 				path = git_path[git_name]
 				if action =='cp':
