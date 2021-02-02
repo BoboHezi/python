@@ -2,12 +2,15 @@ import os
 import sys
 import re
 import time
+import Helps
+from pydoc import help
+from sys import exit
 
 selected = None
 # {%count : (%serial_id, %platform)}
 
 def execute(cmd, show):
-	if cmd.startswith('adb') and selected != None:
+	if cmd.startswith('adb') and selected:
 		for key in selected.keys():
 			if key == 2:
 				device = selected[key]
@@ -22,7 +25,7 @@ def execute(cmd, show):
 
 def numberic(value):
 	rst = re.match('[0-9]{1,}', value, flags=0)
-	result = False if rst == None else (True if rst.group() == value else False)
+	result = False if not rst else (True if rst.group() == value else False)
 	return result
 
 def root():
@@ -32,13 +35,13 @@ def remount():
 	execute('adb remount', False)
 
 def dev():
-	database(['global', 'development_settings_enabled', '1'])
+	database(['global', 'development_settings_enabled', '1'], False)
 	start(['-n', 'com.android.settings/.Settings'])
 	start(['-a', 'android.settings.APPLICATION_DEVELOPMENT_SETTINGS'])
 
 def log():
 	plat = 'mtk'
-	if selected != None and len(selected) == 1:
+	if selected and len(selected) == 1:
 		for value in selected.values():
 			plat = value[1]
 			break
@@ -51,10 +54,11 @@ def log():
 
 def engmode():
 	plat = 'mtk'
-	if selected != None and len(selected) == 1:
+	if selected and len(selected) == 1:
 		for value in selected.values():
 			plat = value[1]
 			break
+	database(['global', 'development_settings_enabled', '1'], False)
 	if plat == 'mtk':
 		start(['-n', 'com.mediatek.engineermode/.EngineerMode'])
 	elif plat == 'sprd':
@@ -67,7 +71,7 @@ def platform():
 	hardware = None
 	for line in cpu_info.split('\n'):
 		matchObj = re.match('(?i)Hardware\t*: (.*)', line)
-		if matchObj != None:
+		if matchObj:
 			hardware = matchObj.group(1)
 			break
 
@@ -89,11 +93,11 @@ def platform():
 	# 		qcom_flag = execute('adb shell \"getprop | grep qcom\"', False)
 	# 		if len(qcom_flag) > 0:
 	# 			return 'qcom'
-	return 'nuknow'
+	return 'unknown'
 
-def pulllog(argv):
+def pulllog(argv=sys.argv[2:]):
 	plat = 'mtk'
-	if selected != None and len(selected) == 1:
+	if selected and len(selected) == 1:
 		for value in selected.values():
 			plat = value[1]
 			break
@@ -105,64 +109,72 @@ def pulllog(argv):
 	elif plat == 'qcom':
 		pass
 
-	dst = ''
-	if len(argv) >= 1:
-		dst = argv[0]
+	dst = argv[0] if len(argv) else ''
 
-	if source != None:
+	if source:
 		print(execute('adb pull %s %s' % (source, dst), True))
 
-def database(argv):
+def database(argv=sys.argv[2:], prt='False'):
 	if len(argv) >= 1:
 		table = argv[0]
-		if len(argv) >= 2:
-			key = argv[1]
+		if table in ('system', 'secure', 'global') and len(argv) >= 2:
+			name = argv[1]
 			value = argv[2] if len(argv) >= 3 else None
-			if value != None:
-				execute('adb shell settings put %s %s %s' % (table, key, value), True)
-			result = execute('adb shell settings get %s %s' % (table, key), True)
+			if value:
+				execute('adb shell settings put %s %s %s' % (table, name, value), True)
+			result = execute('adb shell settings get %s %s' % (table, name), True)
+			if prt:
+				print(result)
 			return result
+	return '-h'
 
-def topact(argv):
+def topact(argv=sys.argv[2:]):
 	rst = execute('adb shell \"dumpsys activity top | grep ACTIVITY\"', True)
 	array = rst.split('\n')
+	help_flag = False
 	for item in array:
 		item = item.lstrip().rstrip()
 		if len(item) == 0:
 			continue
 		print(item)
 		if len(argv) >= 1:
-			matchObj = re.match('ACTIVITY (.*)/(.*) ([0-9].*) pid=(.*)', item)
-			if matchObj == None or len(matchObj.groups()) < 4:
+			matchObj = re.match('ACTIVITY (.*)/(.*) ([0-9a-fA-F].*) pid=(.*)', item)
+			if not matchObj or len(matchObj.groups()) < 4:
 				continue
 			pkg = matchObj.group(1)
-			apkinfo = ''
 			if argv[0] == '-p':
-				apkinfo = execute('adb shell pm path %s' % (pkg), True)
+				print(execute('adb shell pm path %s' % (pkg), True))
 			elif argv[0] == '-f':
-				apkinfo = execute('adb shell pm list packages -f %s' % (pkg), True)
-			print(apkinfo)
+				print(execute('adb shell pm list packages -f %s' % (pkg), True))
+			else :
+				help_flag = True
+	if help_flag:
+		return '-h'
 
 def focus():
 	print(execute('adb shell \"dumpsys activity | grep mFocusedActivity\"', True))
 
-def brt(argv):
+def brt(argv=sys.argv[2:]):
 	db_arg = ['system', 'screen_brightness']
 	if len(argv) >= 1:
 		if numberic(argv[0]) and int(argv[0]) >= 0:
-			db_arg.append(int(sys.argv[2]))
-	print(database(db_arg))
+			db_arg.append(int(argv[0]))
+		else :
+			return '-h'
+	database(db_arg, True)
 
-def density(argv):
+def density(argv=sys.argv[2:]):
 	if len(argv) >= 1:
 		if numberic(argv[0]) and int(argv[0]) >= 0:
-			print(execute('adb shell wm density %d' % (int(sys.argv[2])), True))
+			print(execute('adb shell wm density %d' % (int(argv[0])), True))
+		else :
+			return '-h'
 	print(execute('adb shell wm density', True))
 
 def size():
 	print(execute('adb shell wm size', True))
 
-def sf(argv):
+def sf(argv=sys.argv[2:]):
 	db_arg = ['system', 'screen_off_timeout']
 	if len(argv) >= 1:
 		parm = argv[0]
@@ -174,9 +186,9 @@ def sf(argv):
 		elif numberic(parm):
 			time = int(parm)
 		else:
-			time = int(time)
+			return '-h'
 		db_arg.append(time)
-	time = int(database(db_arg))
+	time = int(database(db_arg, False))
 	time_format = ('%dms' % time)
 	if time >= 1000 and time < (60 * 1000) :
 		time_format = ('%ds' % (time / 1000))
@@ -184,37 +196,43 @@ def sf(argv):
 		time_format = ('%dm' % (time / 1000 / 60))
 	print(time_format)
 
-def start(argv):
-	if len(argv) >= 2:
-		acti = argv[0]
-		targ = argv[1]
-		print(execute('adb shell am start %s %s' % (acti, targ), True))
+def start(argv=sys.argv[2:]):
+	if len(argv) >= 2 and argv[0] in ('-a', '-n'):
+		print(execute('adb shell am start %s %s' % (argv[0], argv[1]), True))
+	else :
+		return '-h'
 
-def send_key(argv):
+def send_key(argv=sys.argv[2:]):
 	if len(argv) >= 1:
 		print(execute('adb shell input keyevent %s' % (argv[0]), True))
+	else :
+		return '-h'
 
-def volume(argv):
+def volume(argv=sys.argv[2:]):
 	times = int(argv[1:]) if numberic(argv[1:]) else 1
 	first = argv[0]
 	key = 'KEYCODE_VOLUME_UP' if first == '+' else ('KEYCODE_VOLUME_DOWN' if first == '-' else '')
-	if key != '':
+	if key:
 		index = 0
 		while index < times:
 			index += 1
 			send_key([key])
 
-def cap(argv):
+def cap(argv=sys.argv[2:]):
 	path = 'sdcard/caps/'
 	execute('adb shell mkdir -p %s' % (path), False)
 	name = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime()) + '.png'
 	dst = path + name
 	print(execute('adb shell screencap -p %s' % (dst), True))
-	if len(argv) >= 1 and argv[0] == '-p':
+	if len(argv) >= 1 :
+		if argv[0] != '-p':
+			return '-h'
 		local = argv[1] if len(argv) >= 2 else ''
+		if local.endswith(os.sep):
+			local = local + name
 		print(execute('adb pull %s %s' % (dst, local), True))
 
-def record(argv):
+def record(argv=sys.argv[2:]):
 	path = 'sdcard/caps/'
 	execute('adb shell mkdir -p %s' % (path), False)
 	name = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime()) + '.mp4'
@@ -236,11 +254,13 @@ def record(argv):
 					if len(argv) >= argv.index('-p') + 2 :
 						local = argv[argv.index('-p') + 1]
 					local = '' if local == '-b' else local
+					if local.endswith(os.sep):
+						local = local + name
 					time.sleep(1)
 					print(execute('adb pull %s %s' % (dst, local), True))
 					break
 
-def kill(argv):
+def kill(argv=sys.argv[2:]):
 	if len(argv) > 0:
 		pkg = argv[0]
 		rst = execute('adb shell ps', True)
@@ -248,19 +268,21 @@ def kill(argv):
 		for line in rst.split('\n'):
 			# if line.endswith(pkg):
 			if pkg in line:
-				# 拆分以不定量空格分隔开的字符串
+				# Splits a string separated by an unquantified amount of space
 				obj = re.findall('[\S.]+', line)
-				if obj != None and len(obj) > 1:
+				if obj and len(obj) > 1:
 					pid = obj[1]
 					if numberic(pid):
 						execute('adb shell kill %s' % pid, True)
+	else :
+		return '-h'
 
-def pushs(argv):
+def pushs(argv=sys.argv[2:]):
 	source = argv[0] if len(argv) > 0 else None
 	target = argv[1] if len(argv) > 1 else None
 
-	if source == None or len(source) == 0 or not os.path.exists(source) or os.path.isfile(source):
-		return
+	if not source or len(source) == 0 or not os.path.exists(source) or os.path.isfile(source):
+		return '-h'
 
 	# find 'anchor' as we wanted
 	available = ('system', 'vendor')
@@ -270,21 +292,19 @@ def pushs(argv):
 		if item in source.split(os.sep):
 			anchor = item
 			break
-	if anchor == None and target != None:
+	if not anchor and target:
 		for item in available:
 			if item in target.split('/'):
 				anchor = item
 				break
 	# print('anchor = %s' % anchor)
 
-	if anchor == None:
-		print('anchor not found!!!')
-		return
+	if not anchor:
+		return '-h'
 
-	if target == None:
-		if anchor == None:
-			print('must have target!!!')
-			return
+	if not target:
+		if not anchor:
+			return '-h'
 		else:
 			# find target from source
 			target = source[source.find(anchor):]
@@ -297,7 +317,7 @@ def pushs(argv):
 
 	files = getFiles(source)
 	# print(files)
-	if files != None:
+	if files:
 		push_items = {}
 		for source_file in files:
 			target_file = None
@@ -334,7 +354,7 @@ def getFiles(path):
 			af += getFiles(path + os.sep + file)
 	return af
 
-def workspace(argv):
+def workspace(argv=sys.argv[2:]):
 	action = 'com.freeme.workspace.ACTION_DEBUG'
 	comp1 = 'com.freeme.freemelite.odm/com.freeme.launcher.WorkspaceReceiver'
 	comp2 = 'com.freeme.biglauncher/com.freeme.biglauncher.launcher.component.WorkspaceReceiver'
@@ -347,25 +367,30 @@ def mute():
 	print(execute('adb shell media volume --show --stream 2 --set 0', True))
 	print(execute('adb shell media volume --show --stream 3 --set 0', True))
 
-def watermark(argv):
+def watermark():
 	execute('adb shell am broadcast -a android.droi.watermark.SECRET_CODE', True)
 
-def uid(argv):
+def uid(argv=sys.argv[2:]):
 	pkg = argv[0] if (len(argv) > 0) else None
-	if pkg == None:
-		return
+	if not pkg:
+		return '-h'
 
 	packages_list = execute('adb shell cat /data/system/packages.list', True)
 	pattern = '(^%s )([0-9]*)' % pkg
 	uid = None
 	for line in packages_list.split('\n'):
 		obj = re.match(pattern, line)
-		if obj != None:
+		if obj:
 			uid = obj.group(2)
 			break
-	print('%s uid %s' % (pkg, uid if uid != None else 'not found'))
+	print('%s uid %s' % (pkg, uid if uid else 'not found'))
 
 if ( __name__ == "__main__"):
+
+	# dump cmd
+	cmd = ''
+	if len(sys.argv) > 1:
+		cmd = sys.argv[1]
 
 	# first, we find all the devices
 	devices_str = execute('adb devices', False)
@@ -378,7 +403,7 @@ if ( __name__ == "__main__"):
 			selected = {2 : (id, platform())}
 			devices.append(selected)
 
-	if selected != None:
+	if selected:
 		for key in selected.keys():
 			selected = {1 : selected[key]}
 
@@ -396,66 +421,57 @@ if ( __name__ == "__main__"):
 		ipt = '1' if int(ipt) > len(devices) else ipt
 		selected = devices[int(ipt) - 1]
 
-	# dump cmd
-	cmd = ''
-	if len(sys.argv) > 1:
-		cmd = sys.argv[1]
+	cmd_process = {
+	'dev'		:	[dev],
+	'log'		:	[log],
+	'engmode'	:	[engmode],
+	'pulllog'	:	[pulllog],
+	'topact'	:	[topact],
+	'focus'		:	[focus],
+	'brt'		:	[brt],
+	'density'	:	[density],
+	'size'		:	[size],
+	'sf'		:	[sf],
+	'start'		:	[start],
+	'settings'	:	[start, ['-n', 'com.android.settings/.Settings']],
+	'key'		:	[send_key],
+	'back'		:	[send_key, ['KEYCODE_BACK']],
+	'home'		:	[send_key, ['KEYCODE_HOME']],
+	'menu'		:	[send_key, ['KEYCODE_MENU']],
+	'power'		:	[send_key, ['KEYCODE_POWER']],
+	'shot'		:	[send_key, ['KEYCODE_CAMERA']],
+	'cap'		:	[cap],
+	'record'	:	[record],
+	'mute'		:	[mute],
+	'db'		:	[database],
+	'kill'		:	[kill],
+	'pushs'		:	[pushs],
+	'workspace'	:	[workspace],
+	'watermark'	:	[watermark],
+	'uid'		:	[uid],
+	'[+-][0-9]'	:	[volume, cmd],
+	'^(-h)$|^(--help)$'	:	[help, 'Helps.main'],
+	}
 
-	if cmd == 'dev':
-		dev()
-	elif cmd == 'log':
-		log()
-	elif cmd == 'engmode':
-		engmode()
-	elif cmd == 'pulllog':
-		pulllog(sys.argv[2:])
-	elif cmd == 'topact':
-		topact(sys.argv[2:])
-	elif cmd == 'focus':
-		focus()
-	elif cmd == 'brt':
-		brt(sys.argv[2:])
-	elif cmd == 'density':
-		density(sys.argv[2:])
-	elif cmd == 'size':
-		size()
-	elif cmd == 'sf':
-		sf(sys.argv[2:])
-	elif cmd == 'start':
-		start(sys.argv[2:])
-	elif cmd == 'settings':
-		start(['-n', 'com.android.settings/.Settings'])
-	elif cmd == 'key':
-		send_key(sys.argv[2:])
-	elif cmd == 'back':
-		send_key(['KEYCODE_BACK'])
-	elif cmd == 'home':
-		send_key(['KEYCODE_HOME'])
-	elif cmd == 'menu':
-		send_key(['KEYCODE_MENU'])
-	elif cmd == 'power':
-		send_key(['KEYCODE_POWER'])
-	elif cmd == 'shot':
-		send_key(['KEYCODE_CAMERA'])
-	elif cmd == 'cap':
-		cap(sys.argv[2:])
-	elif cmd == 'record':
-		record(sys.argv[2:])
-	elif cmd == 'mute':
-		mute()
-	elif cmd == 'db':
-		print(database(sys.argv[2:]))
-	elif cmd == 'kill':
-		kill(sys.argv[2:])
-	elif cmd == 'pushs':
-		pushs(sys.argv[2:])
-	elif cmd == 'workspace':
-		workspace(sys.argv[2:])
-	elif cmd == 'watermark':
-		watermark(sys.argv[2:])
-	elif cmd == 'uid':
-		uid(sys.argv[2:])
-	elif len(cmd) > 0 and (cmd[0] == '+' or cmd[0] == '-'):
-		volume(cmd)
-	else:
-		print('wrong parameter')
+	help_flag = ('-h', '--help')
+
+	for key, impl in cmd_process.items():
+		obj = re.match(key, cmd)
+		if obj and obj.group() == cmd:
+			if set(help_flag) & set(sys.argv[2:]):
+				help('Helps.%s' % key)
+				exit()
+
+			if impl and len(impl) > 0:
+				func = impl[0]
+				argv = impl[1] if len(impl) > 1 else None
+				rtn = None
+				if argv:
+					rtn = func(argv)
+				else:
+					rtn = func()
+				if rtn in help_flag:
+					help('Helps.%s' % key)
+			exit()
+
+	print('wrong parameter, try \'sc --help\' to get more information')
