@@ -25,8 +25,7 @@ def execute(cmd, show):
 
 def numberic(value):
 	rst = re.match('[0-9]{1,}', value, flags=0)
-	result = False if not rst else (True if rst.group() == value else False)
-	return result
+	return False if not rst else (True if rst.group() == value else False)
 
 def root():
 	execute('adb root', False)
@@ -35,7 +34,7 @@ def remount():
 	execute('adb remount', False)
 
 def dev():
-	database(['global', 'development_settings_enabled', '1'], False)
+	database(['global', 'development_settings_enabled', '1'])
 	start(['-n', 'com.android.settings/.Settings'])
 	start(['-a', 'android.settings.APPLICATION_DEVELOPMENT_SETTINGS'])
 
@@ -58,7 +57,7 @@ def engmode():
 		for value in selected.values():
 			plat = value[1]
 			break
-	database(['global', 'development_settings_enabled', '1'], False)
+	database(['global', 'development_settings_enabled', '1'])
 	if plat == 'mtk':
 		start(['-n', 'com.mediatek.engineermode/.EngineerMode'])
 	elif plat == 'sprd':
@@ -114,7 +113,7 @@ def pulllog(argv=sys.argv[2:]):
 	if source:
 		print(execute('adb pull %s %s' % (source, dst), True))
 
-def database(argv=sys.argv[2:], prt='False'):
+def database(argv=sys.argv[2:], prt=False):
 	if len(argv) >= 1:
 		table = argv[0]
 		if table in ('system', 'secure', 'global') and len(argv) >= 2:
@@ -126,6 +125,19 @@ def database(argv=sys.argv[2:], prt='False'):
 			if prt:
 				print(result)
 			return result
+	return '-h'
+
+def prop(argv=sys.argv[2:], prt=False):
+	if len(argv) >= 1:
+		root()
+		key = argv[0]
+		value = argv[1] if len(argv) >= 2 else None
+		if value:
+			execute('adb shell setprop %s %s' % (key, value), True)
+		result = execute('adb shell getprop %s' % key, True)
+		if prt:
+			print(result)
+		return result
 	return '-h'
 
 def topact(argv=sys.argv[2:]):
@@ -188,7 +200,7 @@ def sf(argv=sys.argv[2:]):
 		else:
 			return '-h'
 		db_arg.append(time)
-	time = int(database(db_arg, False))
+	time = int(database(db_arg))
 	time_format = ('%dms' % time)
 	if time >= 1000 and time < (60 * 1000) :
 		time_format = ('%ds' % (time / 1000))
@@ -277,6 +289,13 @@ def kill(argv=sys.argv[2:]):
 	else :
 		return '-h'
 
+def clear(argv=sys.argv[2:]):
+	if len(argv) > 0:
+		pkg = argv[0]
+		rst = execute('adb shell pm clear %s' % pkg, True)
+	else :
+		return '-h'
+
 def pushs(argv=sys.argv[2:]):
 	source = argv[0] if len(argv) > 0 else None
 	target = argv[1] if len(argv) > 1 else None
@@ -332,7 +351,7 @@ def pushs(argv=sys.argv[2:]):
 		if len(push_items) > 0:
 			for key, value in push_items.items():
 				print('%s -> %s' % (key, value))
-			confirm = input('push above items, do you confirm?(y/n)')
+			confirm = compatible_input('push above items, do you confirm?(y/n)')
 			if confirm == 'y':
 				for key, value in push_items.items():
 					print(execute('adb push %s %s' % (key, value), False))
@@ -385,17 +404,26 @@ def uid(argv=sys.argv[2:]):
 			break
 	print('%s uid %s' % (pkg, uid if uid else 'not found'))
 
+def compatible_input(prompt):
+	if sys.version_info.major == 2:
+		return raw_input(prompt)
+	else:
+		return input(prompt)
+
 if ( __name__ == "__main__"):
 
 	# dump cmd
-	cmd = ''
-	if len(sys.argv) > 1:
-		cmd = sys.argv[1]
+	cmd = sys.argv[1] if len(sys.argv) > 1 else ''
 
-	# first, we find all the devices
-	devices_str = execute('adb devices', False)
+	# help child first
+	help_flag = ('-h', '--help')
+	if set(help_flag) & set(sys.argv[2:]):
+		help('Helps.%s' % cmd)
+		exit()
+
+	# first, find all the devices
 	devices = []
-	for line in devices_str.split('\n'):
+	for line in execute('adb devices', False).split('\n'):
 		if line.find('\t') > 0:
 			# find platform and put to %devices
 			id = line.split('\t')[0]
@@ -417,9 +445,9 @@ if ( __name__ == "__main__"):
 				devi = device[key]
 				print('%d - %s - %s' % (devices.index(device) + 1, devi[0], devi[1]))
 				break
-		ipt = input('\nmore than one device/emulator, please choose one: ')
-		ipt = '1' if int(ipt) > len(devices) else ipt
-		selected = devices[int(ipt) - 1]
+		ipt = int(compatible_input('\nmore than one device/emulator, please choose one: '))
+		ipt = 1 if ipt > len(devices) or ipt < 1 else ipt
+		selected = devices[ipt - 1]
 
 	cmd_process = {
 	'dev'		:	[dev],
@@ -433,18 +461,20 @@ if ( __name__ == "__main__"):
 	'size'		:	[size],
 	'sf'		:	[sf],
 	'start'		:	[start],
-	'settings'	:	[start, ['-n', 'com.android.settings/.Settings']],
+	'settings'	:	[start, [['-n', 'com.android.settings/.Settings']]],
 	'key'		:	[send_key],
-	'back'		:	[send_key, ['KEYCODE_BACK']],
-	'home'		:	[send_key, ['KEYCODE_HOME']],
-	'menu'		:	[send_key, ['KEYCODE_MENU']],
-	'power'		:	[send_key, ['KEYCODE_POWER']],
-	'shot'		:	[send_key, ['KEYCODE_CAMERA']],
+	'back'		:	[send_key, [['KEYCODE_BACK']]],
+	'home'		:	[send_key, [['KEYCODE_HOME']]],
+	'menu'		:	[send_key, [['KEYCODE_MENU']]],
+	'power'		:	[send_key, [['KEYCODE_POWER']]],
+	'shot'		:	[send_key, [['KEYCODE_CAMERA']]],
 	'cap'		:	[cap],
 	'record'	:	[record],
 	'mute'		:	[mute],
-	'db'		:	[database],
+	'db'		:	[database, [sys.argv[2:], True]],
+	'prop'	:	[prop, [sys.argv[2:], True]],
 	'kill'		:	[kill],
+	'clear'		:	[clear],
 	'pushs'		:	[pushs],
 	'workspace'	:	[workspace],
 	'watermark'	:	[watermark],
@@ -453,25 +483,22 @@ if ( __name__ == "__main__"):
 	'^(-h)$|^(--help)$'	:	[help, 'Helps.main'],
 	}
 
-	help_flag = ('-h', '--help')
+	# find implementation
+	implementation = cmd_process.get(cmd)
+	if not implementation:
+		for key, impl in cmd_process.items():
+			obj = re.match(key, cmd)
+			if obj and obj.group() == cmd:
+				implementation = impl
+				break
 
-	for key, impl in cmd_process.items():
-		obj = re.match(key, cmd)
-		if obj and obj.group() == cmd:
-			if set(help_flag) & set(sys.argv[2:]):
-				help('Helps.%s' % key)
-				exit()
-
-			if impl and len(impl) > 0:
-				func = impl[0]
-				argv = impl[1] if len(impl) > 1 else None
-				rtn = None
-				if argv:
-					rtn = func(argv)
-				else:
-					rtn = func()
-				if rtn in help_flag:
-					help('Helps.%s' % key)
-			exit()
+	# implementation
+	if implementation and len(implementation) > 0:
+		func = implementation[0]
+		argv = implementation[1] if len(implementation) > 1 else None
+		rtn = func(*argv) if argv else func()
+		if rtn in help_flag:
+			help('Helps.%s' % cmd)
+		exit()
 
 	print('wrong parameter, try \'sc --help\' to get more information')

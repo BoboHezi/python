@@ -53,6 +53,10 @@ def main():
 
 		kill		kill process by package name(if exist)
 
+		clear		clear data of package
+
+		prop		set/get an Android system property
+
 		pushs		push folder
 
 		workspace	genrate workspace and pulling to local
@@ -243,7 +247,7 @@ def db():
 
 	options:
 		[table]:	one of [system, secure, global]
-		[name]:		name will operate(or create)
+		[name]:		operand
 		[value]:	value will set to [name]
 	"""
 	pass
@@ -287,5 +291,23 @@ def uid():
 	"""
 	uid [package]
 	get uid of package(if exist)
+	"""
+	pass
+
+def clear():
+	"""
+	clear [package]
+	clear data of package(if exist)
+	"""
+	pass
+
+def prop():
+	"""
+	prop [name] [value]
+	set/get an Android system property
+
+	options:
+		[name]:		operand
+		[value]:	value will set to [name]
 	"""
 	pass
