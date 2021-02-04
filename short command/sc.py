@@ -82,15 +82,15 @@ def platform():
 		return 'qcom'
 
 	# mtk_flag = execute('adb shell \"getprop | grep mtk\"', False)
-	# if len(mtk_flag) > 0:
+	# if len(mtk_flag):
 	# 	return 'mtk'
 	# else :
 	# 	sprd_flag = execute('adb shell \"getprop | grep sprd\"', False)
-	# 	if len(sprd_flag) > 0:
+	# 	if len(sprd_flag):
 	# 		return 'sprd'
 	# 	else :
 	# 		qcom_flag = execute('adb shell \"getprop | grep qcom\"', False)
-	# 		if len(qcom_flag) > 0:
+	# 		if len(qcom_flag):
 	# 			return 'qcom'
 	return 'unknown'
 
@@ -146,7 +146,7 @@ def topact(argv=sys.argv[2:]):
 	help_flag = False
 	for item in array:
 		item = item.lstrip().rstrip()
-		if len(item) == 0:
+		if not len(item):
 			continue
 		print(item)
 		if len(argv) >= 1:
@@ -273,7 +273,7 @@ def record(argv=sys.argv[2:]):
 					break
 
 def kill(argv=sys.argv[2:]):
-	if len(argv) > 0:
+	if len(argv):
 		pkg = argv[0]
 		rst = execute('adb shell ps', True)
 		root()
@@ -290,17 +290,17 @@ def kill(argv=sys.argv[2:]):
 		return '-h'
 
 def clear(argv=sys.argv[2:]):
-	if len(argv) > 0:
+	if len(argv):
 		pkg = argv[0]
 		rst = execute('adb shell pm clear %s' % pkg, True)
 	else :
 		return '-h'
 
 def pushs(argv=sys.argv[2:]):
-	source = argv[0] if len(argv) > 0 else None
+	source = argv[0] if len(argv) else None
 	target = argv[1] if len(argv) > 1 else None
 
-	if not source or len(source) == 0 or not os.path.exists(source) or os.path.isfile(source):
+	if not source or not os.path.exists(source) or os.path.isfile(source):
 		return '-h'
 
 	# find 'anchor' as we wanted
@@ -348,7 +348,7 @@ def pushs(argv=sys.argv[2:]):
 			push_items[source_file] = target_file
 			# print('push %s -> %s' % (source_file, target_file))
 
-		if len(push_items) > 0:
+		if len(push_items):
 			for key, value in push_items.items():
 				print('%s -> %s' % (key, value))
 			confirm = compatible_input('push above items, do you confirm?(y/n)')
@@ -379,7 +379,7 @@ def workspace(argv=sys.argv[2:]):
 	comp2 = 'com.freeme.biglauncher/com.freeme.biglauncher.launcher.component.WorkspaceReceiver'
 	execute('adb shell am broadcast -a %s -n %s' % (action, comp1), True)
 	execute('adb shell am broadcast -a %s -n %s' % (action, comp2), True)
-	local = argv[0] if (len(argv) > 0) else ''
+	local = argv[0] if len(argv) else ''
 	execute('adb pull /sdcard/launcher/ %s' % local, True)
 
 def mute():
@@ -390,7 +390,7 @@ def watermark():
 	execute('adb shell am broadcast -a android.droi.watermark.SECRET_CODE', True)
 
 def uid(argv=sys.argv[2:]):
-	pkg = argv[0] if (len(argv) > 0) else None
+	pkg = argv[0] if len(argv) else None
 	if not pkg:
 		return '-h'
 
@@ -435,7 +435,7 @@ if ( __name__ == "__main__"):
 		for key in selected.keys():
 			selected = {1 : selected[key]}
 
-	if len(devices) == 0:
+	if not len(devices):
 		print('no devices/emulators found!!!')
 		exit()
 	elif len(devices) >= 2:
@@ -472,15 +472,15 @@ if ( __name__ == "__main__"):
 	'record'	:	[record],
 	'mute'		:	[mute],
 	'db'		:	[database, [sys.argv[2:], True]],
-	'prop'	:	[prop, [sys.argv[2:], True]],
+	'prop'		:	[prop, [sys.argv[2:], True]],
 	'kill'		:	[kill],
 	'clear'		:	[clear],
 	'pushs'		:	[pushs],
 	'workspace'	:	[workspace],
 	'watermark'	:	[watermark],
 	'uid'		:	[uid],
-	'[+-][0-9]'	:	[volume, cmd],
-	'^(-h)$|^(--help)$'	:	[help, 'Helps.main'],
+	'[+-][0-9]'	:	[volume, [cmd]],
+	'^(-h)$|^(--help)$'	:	[help, ['Helps.main']],
 	}
 
 	# find implementation
@@ -493,7 +493,7 @@ if ( __name__ == "__main__"):
 				break
 
 	# implementation
-	if implementation and len(implementation) > 0:
+	if implementation and len(implementation):
 		func = implementation[0]
 		argv = implementation[1] if len(implementation) > 1 else None
 		rtn = func(*argv) if argv else func()
