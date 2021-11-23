@@ -74,6 +74,8 @@ def platform():
 			hardware = matchObj.group(1)
 			break
 
+	if not hardware:
+		return 'unknown'
 	if 'MT' in hardware:
 		return 'mtk'
 	elif 'Unisoc' in hardware:
@@ -375,7 +377,7 @@ def getFiles(path):
 
 def workspace(argv=sys.argv[2:]):
 	action = 'com.freeme.workspace.ACTION_DEBUG'
-	comp1 = 'com.freeme.freemelite.odm/com.freeme.launcher.WorkspaceReceiver'
+	comp1 = 'com.freeme.launcher/com.freeme.launcher.WorkspaceReceiver'
 	comp2 = 'com.freeme.biglauncher/com.freeme.biglauncher.launcher.component.WorkspaceReceiver'
 	execute('adb shell am broadcast -a %s -n %s' % (action, comp1), True)
 	execute('adb shell am broadcast -a %s -n %s' % (action, comp2), True)

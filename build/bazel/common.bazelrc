@@ -1,0 +1,82 @@
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+Code panel - press c to focus line 1.
+# Platforms and toolchains for AOSP.
+#
+# Set a default target platform for builds.
+build --platforms //build/bazel/platforms:generic_x86_64
+# # Use toolchain resolution to find the cc toolchain.
+build --incompatible_enable_cc_toolchain_resolution
+# Lock down the PATH variable in actions to /usr/bin and /usr/local/bin.
+build --experimental_strict_action_env
+# Explicitly allow unresolved symlinks (it's an experimental Bazel feature)
+build --experimental_allow_unresolved_symlinks
+# Enable usage of cc_shared_library build APIs
+build --experimental_cc_shared_library
+# Disable middleman actions
+build --noexperimental_enable_aggregating_middleman
+# Enable building targets in //external:__subpackages__.
+common --experimental_sibling_repository_layout
+common --experimental_disable_external_package
+# Enable toplevel_output_directories and Ninja executor in Bazel
+common --experimental_ninja_actions
+# Increase refresh rate of command line UI for improved perceived responsiveness.
+common --show_progress_rate_limit=0.05
+# These are disabled when running under soong_ui (default = auto). Force enable them here.
+common --color=yes
+common --curses=yes
+# Show the full set of flags for observability and debuggability.
+common --announce_rc
+# Run bazel query from the workspace, without cd'ing into out/soong/queryview
+# Note that this hardcodes the output dir. It will not work if $OUT_DIR != out.
+common:queryview --package_path=%workspace%/out/soong/queryview
+# Run bazel query from the workspace, without cd'ing into out/soong/bp2build
+# Note that this hardcodes the output dir. It will not work if $OUT_DIR != out.
+common:bp2build --package_path=%workspace%/out/soong/bp2build
+# Support a local user-specific bazelrc file.
+try-import %workspace%/user.bazelrc

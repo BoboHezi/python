@@ -19,6 +19,8 @@
 
 1. 安装pyinstaller：```pip install pyinstaller```
 
+> 若出现报错: error for loop initial declarations are only allowed in C99 mode，可在命令之前添加"CC='gcc -std=c99'"
+
 2. 将sc.py和Helps.py存放某一路径（Windows下需要和python的安装路径在同一个分区）
 
 3. cmd，并执行命令```pyinstaller -F [path\sc.py]```(Windows下，path为绝对路径)
