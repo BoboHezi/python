@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 from os import path
-import datetime
-import matplotlib
-import matplotlib.pyplot as plt
+from datetime import timedelta
+from matplotlib import rcParams
+from matplotlib import pyplot as plt
 import mysql.connector
 import numpy as np
-import time
 import utils
 
 
@@ -32,10 +31,6 @@ def query_data(table='devops_compile', keys='id, compile_build_time, compile_bui
     return cursor.fetchall()
 
 
-def on_key_press(event):
-    print(event.key)
-
-
 def main():
     compile_rst = query_data(keys='id, create_time, compile_platform_id, compile_build_id, compile_server_ip', \
         condition='create_time > "2021-07-31 17:19:38"', order='create_time ASC')
@@ -47,10 +42,10 @@ def main():
     end_date = last_item[1].date()
 
     sundays = []
-    sunday = start_date - datetime.timedelta(days=(start_date.weekday() + 1))
+    sunday = start_date - timedelta(days=(start_date.weekday() + 1))
     while sunday <= end_date:
         sundays.append(sunday)
-        sunday += datetime.timedelta(days=7)
+        sunday += timedelta(days=7)
 
     print('from %s to %s' % (start_date, end_date))
 
@@ -62,7 +57,7 @@ def main():
         platform_map = data_map[platform] if platform in data_map else {}
 
         # get this sunday
-        this_sun = create_time.date() - datetime.timedelta(days=(create_time.weekday() + 1))
+        this_sun = create_time.date() - timedelta(days=(create_time.weekday() + 1))
 
         # get or creat date map
         date_count = platform_map[this_sun] if this_sun in platform_map else 0
@@ -75,30 +70,27 @@ def main():
 
     x_date = [str(x) for x in sundays]
 
-    matplotlib.rcParams['font.sans-serif'] = ['SimHei']
-    plt.xticks(rotation=0)
-    plt.xlabel('日期')
-    plt.ylabel('数量')
-    plt.title('编译统计')
-
     # genrate y & tag on diag
     lines = {}
     for platform, date_count in data_map.items():
-        print('%s:' % platform)
-        for date, count in date_count.items():
-            print('  in week %s: %s' % (date, count))
         y = []
         for sunday in sundays:
             count = date_count[sunday] if sunday in date_count else 0
             y.append(count)
         lines[platform] = y
+    # sort
+    lines = dict(sorted(lines.items(), key=lambda x : sum(x[1]), reverse=True))
+
+    rcParams['font.sans-serif'] = ['SimHei']
+    plt.xticks(rotation=0)
+    plt.xlabel('日期')
+    plt.ylabel('数量')
+    plt.title('编译统计')
     # draw
     for label, y_data in lines.items():
+        print(label, y_data)
         plt.plot(x_date, y_data, marker='o', label=label)
     plt.legend(loc="upper left")
-    # while True:
-    #     pos = plt.ginput(1)
-    #     print(pos)
     plt.show()
 
 
