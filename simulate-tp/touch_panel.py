@@ -6,75 +6,141 @@ import os
 import sys
 import re
 import pygame
+import xml.sax
+from operator import eq
 from sc import selected	as sc_selected
 from sc import execute	as sc_execute
 from sc import platform	as sc_platform
 from sc import prop		as sc_prop
 from sc import cap		as sc_cap
+from subprocess import Popen, PIPE
+
+class NodeParser(xml.sax.ContentHandler):
+	"""parser ui node"""
+	def __init__(self):
+		self.hierarchy = []
+
+	def startElement(self, tag, attributes):
+		if tag == 'node':
+			pass
+
+	def endElement(self, tag):
+		pass
+
+	def characters(self, content):
+		pass
+
+	def endDocument(self):
+		pass
+
+	def dump_str_node(str):
+		pass
+
+	def dump_file_node(file):
+		if os.path.isfile(file):
+			parser = xml.sax.make_parser()
+			parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+
+			node = NodeParser()
+			parser.setContentHandler(node)
+			parser.parse(file)
+			return node.nodes
+		return None
+
+
+class Node(object):
+	"""docstring for ui node"""
+	def __init__(self, arg):
+		self.NAF            = False
+		self.bounds         = ((), ())
+		self.checkable      = False
+		self.checked        = False
+		self.classs         = ''
+		self.clickable      = False
+		self.content-desc   = ''
+		self.enabled        = False
+		self.focusable      = False
+		self.focused        = False
+		self.index          = -1
+		self.long-clickable = False
+		self.package        = ''
+		self.password       = False
+		self.resource-id    = ''
+		self.scrollable     = False
+		self.selected       = False
+		self.text           = ''
+		
+
 
 devices = ()
 # (
 # 	{'serial':%serial, 'platform':%platform, 'model':%model, 'size':($W, $H)},
 # 	...
 # )
-selected = 0
 
 display_w = 400
+
+def execute(cmd, show=False):
+	if cmd.startswith('adb') and sc_selected:
+		for key in sc_selected.keys():
+			if key == 2:
+				device = sc_selected[key]
+				cmd = cmd[0:3] + (' -s %s ' % device[0]) + cmd[4:]
+			break
+	if show:
+		print('cmd: %s' % cmd)
+	process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+	stdout, stderr = process.communicate()
+	return stdout.decode('utf-8'), stderr.decode('utf-8')
+
+def isempty(obj):
+    return True if not (obj and len(obj)) else False
+
+def uiautomator_str():
+	for i in range(5):
+		out, err = execute('adb shell uiautomator dump /sdcard/ui.xml')
+		if isempty(err.strip()):
+			break
+	out, err = execute('adb shell ls /sdcard/ui.xml')
+	if isempty(err.strip()):
+		out, err = execute('adb shell cat /sdcard/ui.xml')
+		return out.strip()
+	return None
 
 def load_device_surface(screen, size=[360, 480], imgFile='device_surface.png'):
 	img = pygame.transform.scale(pygame.image.load(imgFile), (size[0], size[1]))
 	screen.blit(img, [0, 0])
 	pygame.display.flip()
 
-def run_TP(size=[360, 480]):
+def load_uiautomator():
+	# ui_xml = uiautomator_str()
+	NodeParser.dump_file_node('ui.xml')
+
+def run_uiautomator(size=[360, 480]):
 	screen = pygame.display.set_mode((size[0], size[1]))
-	pygame.display.set_caption('simlate TP')
+	pygame.display.set_caption('uiautomator')
 
 	# 显示图片
+	sc_cap(['-p', 'device_surface.png'])
 	load_device_surface(screen, size)
 	clock = pygame.time.Clock()
 
-	touch_down_flag = False
-	touch_motion_flag = False
+	# 加载布局
+	load_uiautomator()
 
-	last_pointer = ()
-
+	point_down_pos = ()
 	while True:
 		for event in pygame.event.get():
-			# print(event)
 			if event.type == pygame.QUIT:
-				sys.exit()
-			elif event.type == pygame.MOUSEBUTTONDOWN:
-				# TOUCH_DOWN
-				last_pointer = event.pos
-				touch_down_flag = True
-			elif event.type == pygame.MOUSEBUTTONUP:
-				# TOUCH_UP
-				if touch_down_flag:
-					if touch_motion_flag:
-						x1 = int(last_pointer[0] * scale)
-						y1 = int(last_pointer[1] * scale)
-						x2 = int(event.pos[0] * scale)
-						y2 = int(event.pos[1] * scale)
-						print('swipe from (%d, %d) to (%d, %d)' % (x1, y1, x2, y2))
-						sc_execute('adb shell input swipe %d %d %d %d' % (x1, y1, x2, y2), False)
-					else:
-						x = int(last_pointer[0] * scale)
-						y = int(last_pointer[1] * scale)
-						print('tab on (%d, %d)' % (x, y))
-						sc_execute('adb shell input tap %d %d' % (x, y), False)
-					last_pointer = event.pos if event.type == pygame.MOUSEBUTTONUP else last_pointer
-					clock.tick(200)
-					sc_cap(['-p', 'device_surface.png'])
-					# 显示图片
-					load_device_surface(screen, size)
+				return
+			elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+				point_down_pos = event.pos
+			elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+				if eq(event.pos, point_down_pos):
+					print('click')
+					# 加载布局
+					load_uiautomator()
 
-				touch_down_flag = False
-			elif event.type == pygame.MOUSEMOTION:
-				# TOUCH_MOTION if touch_down_flag else HOVER
-				touch_motion_flag = touch_down_flag
-			elif event.type == pygame.WINDOWLEAVE:
-				touch_down_flag = False
 	pygame.display.flip()
 
 def init_size(device_size=(360, 480)):
@@ -83,8 +149,8 @@ def init_size(device_size=(360, 480)):
 	simulate_w = device_size[0]
 	simulate_h = device_size[1]
 
-	retract_w = int(display_size[0] * 0.8)
-	retract_h = int(display_size[1] * 0.8)
+	retract_w = int(display_size[0] * 0.9)
+	retract_h = int(display_size[1] * 0.9)
 
 	if simulate_w > retract_w:
 		simulate_w = retract_w
@@ -126,4 +192,6 @@ if ( __name__ == "__main__"):
 	devices = init_devices()
 	display_w = devices[0].get('size')[0] + 40
 	print(devices)
-	run_TP(init_size(devices[0].get('size')))
+	# run_TP(init_size(devices[0].get('size')))
+
+	run_uiautomator(init_size(devices[0].get('size')))
